@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NextButton, PreviousButton } from "@/components/Button";
 import { Band, Case, Size } from "@/components/Icon";
-import { BANDS, CASES, COLLECTION } from "@/constants";
+import { BANDS, CASES, COLLECTION, SIDE_VIEW_MAPPING } from "@/constants";
 import { Image } from "@/components/Image";
 import {
   SIZE_42MM,
@@ -44,6 +44,8 @@ export default function Home() {
   const [selectedCollectionOption, setSelectedCollectionOption] = useState(
     DROPDOWN_OPTIONS[0]
   );
+  const [sideViewActive, setSideViewActive] = useState(false);
+
   const [BANDS, setBANDS] = useState(
     COLLECTION[selectedCollectionOption.id].bandList
   );
@@ -60,9 +62,14 @@ export default function Home() {
     setCurrentSelection("start");
   }, [selectedCollectionOption]);
 
+  useEffect(() => {
+    handleActiveViewStyle();
+  }, [sideViewActive]);
+
   const slideBandHandler = (bandPosition) => {
     if (bandPosition < 0 || bandPosition >= BANDS.length) return;
     let distance = -1 * bandPosition * 312;
+    setSideViewActive(false);
     setCurrentBand(BANDS[bandPosition]);
     if (!slideBand?.current) return;
     slideBand.current.style.transform = `translateX(${distance}px)`;
@@ -71,6 +78,7 @@ export default function Home() {
   const slideCaseHandler = (casePosition) => {
     if (casePosition < 0 || casePosition >= CASES.length) return;
     let distance = -1 * casePosition * 312;
+    setSideViewActive(false);
     setCurrentCase(CASES[casePosition]);
     if (!slideCase?.current) return;
     slideCase.current.style.transform = `translateX(${distance}px)`;
@@ -80,12 +88,66 @@ export default function Home() {
     if (size < 0 || size > 2) return;
     let distance = -1 * size * 312;
     setCurrentSizeIndex(size);
+    setSideViewActive(false);
     if (!slideSize?.current) return;
     slideSize.current.style.transform = `translateX(${distance}px)`;
   };
 
   const getUrlBasedOnSize = (item) => {
     return currentSizeIndex === SIZE_46MM ? item.url : item.url42;
+  };
+
+  const sideViewImage = (verticalSlidingRequired = true) => (
+    <motion.div
+      animate={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 2 }}
+    >
+      <div className="inline-block transition-all duration-[2s] ease-in-out">
+        <Image
+          additionalClass={
+            verticalSlidingRequired ? "relative top-[-444px]" : ""
+          }
+          src={getUrlBasedOnSize(
+            SIDE_VIEW_MAPPING[`${currentCase.id}${currentBand.id}`]
+          )}
+          alt="Side view of initial watch band image"
+        />
+      </div>
+    </motion.div>
+  );
+
+  const handleActiveViewStyle = () => {
+    const option = currentSelection;
+    const optionToRef = {
+      size: slideSize,
+      band: slideBand,
+      case: slideCase,
+    };
+    const selectedOptionToCurrentSelection = {
+      size: currentSizeIndex,
+      band: currentBand.id,
+      case: currentCase.id,
+    };
+    if (!optionToRef[option]) return;
+    const currentSelectedOptionContainer = optionToRef[option].current;
+    const currentOption = selectedOptionToCurrentSelection[option];
+    const allOptions =
+      currentSelectedOptionContainer.querySelectorAll("[data-option]");
+    allOptions.forEach((option, index) => {
+      if (sideViewActive) {
+        if (index < currentOption) {
+          option.classList.add("translate-x-[-160px]");
+          option.classList.remove("translate-x-[160px]");
+        } else if (index > currentOption) {
+          option.classList.add("translate-x-[160px]");
+          option.classList.remove("translate-x-[-160px]");
+        }
+      } else {
+        option.classList.remove("translate-x-[-160px]", "translate-x-[160px]");
+      }
+    });
   };
 
   return (
@@ -113,30 +175,59 @@ export default function Home() {
               exit={{ opacity: 0, display: "none" }}
               transition={{ duration: 2 }}
             >
-              <motion.div
-                className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all"
-                animate={{ height: hasStarted ? "53vh" : "auto" }}
-                initial={{ height: "auto" }}
-                transition={{ duration: 2 }}
-              >
-                <div
-                  className={`inline-block transition-all duration-[2s] ease-in-out ${
-                    !hasStarted ? "scale-[2] translate-y-[28rem]" : ""
-                  }`}
+              {!sideViewActive && (
+                <motion.div
+                  animate={() => {
+                    const transitionObj = {
+                      opacity: 1,
+                    };
+                    if (hasStarted) {
+                      transitionObj.height = "52vh";
+                    }
+                    return transitionObj;
+                  }}
+                  initial={{ opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 2 }}
+                  className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all"
                 >
-                  <button className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]">
+                  <div
+                    className={`inline-block transition-all duration-[2s] ease-in-out ${
+                      !hasStarted ? "scale-[2] translate-y-[28rem]" : ""
+                    }`}
+                  >
+                    <button className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]">
+                      <Image
+                        src={getUrlBasedOnSize(currentBand)}
+                        alt="Initial watch band image"
+                      />
+                      <Image
+                        src={getUrlBasedOnSize(currentCase)}
+                        additionalClass="relative top-[-444px]"
+                        alt="Initial watch case image"
+                      />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+              {sideViewActive && (
+                <motion.div
+                  className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all"
+                  animate={{ opacity: 1 }}
+                  initial={{ opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 2 }}
+                >
+                  <div className="inline-block transition-all duration-[2s] ease-in-out">
                     <Image
-                      src={getUrlBasedOnSize(currentBand)}
-                      alt="Initial watch band image"
+                      src={getUrlBasedOnSize(
+                        SIDE_VIEW_MAPPING[`${currentCase.id}${currentBand.id}`]
+                      )}
+                      alt="Side view of initial watch band image"
                     />
-                    <Image
-                      src={getUrlBasedOnSize(currentCase)}
-                      additionalClass="relative top-[-444px]"
-                      alt="Initial watch case image"
-                    />
-                  </button>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
           )}
         </div>
@@ -163,38 +254,54 @@ export default function Home() {
                   ref={slideSize}
                   className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all duration-500 ease-in-out h-[53vh]"
                 >
-                  <div className="inline-block">
-                    <button
-                      onClick={() => slideSizeHandler(0)}
-                      className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                    >
-                      <Image
-                        src={currentBand.url42}
-                        alt="Watch band image size 42"
-                      />
-                      <Image
-                        src={currentCase.url42}
-                        additionalClass="relative top-[-444px]"
-                        alt="Watch case image size 42"
-                      />
-                    </button>
+                  <div
+                    data-option
+                    className="inline-block transition-all duration-800"
+                  >
+                    {(!sideViewActive || currentSizeIndex === SIZE_46MM) && (
+                      <button
+                        onClick={() => slideSizeHandler(0)}
+                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
+                      >
+                        <Image
+                          src={currentBand.url42}
+                          alt="Watch band image size 42"
+                        />
+                        <Image
+                          src={currentCase.url42}
+                          additionalClass="relative top-[-444px]"
+                          alt="Watch case image size 42"
+                        />
+                      </button>
+                    )}
+                    {sideViewActive && currentSizeIndex === SIZE_42MM && (
+                      <div className="inline-block">{sideViewImage()}</div>
+                    )}
                   </div>
 
-                  <div className="inline-block">
-                    <button
-                      onClick={() => slideSizeHandler(1)}
-                      className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                    >
-                      <Image
-                        src={currentBand.url}
-                        alt="Watch band image size 46"
-                      />
-                      <Image
-                        src={currentCase.url}
-                        additionalClass="relative top-[-444px]"
-                        alt="Watch case image size 46"
-                      />
-                    </button>
+                  <div
+                    data-option
+                    className="inline-block transition-all duration-800"
+                  >
+                    {(!sideViewActive || currentSizeIndex === SIZE_42MM) && (
+                      <button
+                        onClick={() => slideSizeHandler(1)}
+                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
+                      >
+                        <Image
+                          src={currentBand.url}
+                          alt="Watch band image size 46"
+                        />
+                        <Image
+                          src={currentCase.url}
+                          additionalClass="relative top-[-444px]"
+                          alt="Watch case image size 46"
+                        />
+                      </button>
+                    )}
+                    {sideViewActive &&
+                      currentSizeIndex === SIZE_46MM &&
+                      sideViewImage()}
                   </div>
                 </div>
 
@@ -255,13 +362,25 @@ export default function Home() {
                   className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all duration-500 ease-in-out"
                 >
                   {BANDS.map((band) => (
-                    <div key={band.id} className="inline-block">
-                      <button
-                        onClick={() => slideBandHandler(band.id)}
-                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                      >
-                        <Image src={getUrlBasedOnSize(band)} alt={band.name} />
-                      </button>
+                    <div
+                      data-option
+                      key={band.id}
+                      className="inline-block transition-all duration-800"
+                    >
+                      {(!sideViewActive || currentBand.id !== band.id) && (
+                        <button
+                          onClick={() => slideBandHandler(band.id)}
+                          className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
+                        >
+                          <Image
+                            src={getUrlBasedOnSize(band)}
+                            alt={band.name}
+                          />
+                        </button>
+                      )}
+                      {sideViewActive &&
+                        band.id === currentBand.id &&
+                        sideViewImage(false)}
                     </div>
                   ))}
                 </div>
@@ -283,22 +402,15 @@ export default function Home() {
                   )}
                 </div>
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                  <img
-                    width="500px"
-                    height="500px"
-                    src={getUrlBasedOnSize(currentCase)}
-                    className="w-[52vh] max-w-[29rem] min-w-[18rem]"
-                    alt={"combined watch"}
-                  />
-                  <img
-                    width="500px"
-                    height="500px"
-                    src={
-                      "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MXLX3ref_FV99_VW_34FR+watch-case-46-aluminum-rosegold-nc-s10_VW_34FR+watch-face-46-aluminum-rosegold-s10_VW_34FR?wid=1000&hei=1000&fmt=p-jpg&qlt=95&.v=UzE4U0gvUkVPVWdqOTMwV2xIOHRaMG5TeWJ6QW43NUFnQ2V4cmRFc1VnWWYyNHkrWFJNZ1BodmdwcWlUcmtNMkhaMkVQZTdleWFvVytrdnNBQmJzc2RGNnlaeXQ4NGFKQTAzc0NGeHR2aWJiLzMwazFsQmpWNUowMkIwc3EzL0xpSkl2OTJEMEdGMUpkR2p1bmRlWnpuUWsvSndwZkZQSHB4L3lvZ1B2V3ZCbWtNN0I0OEtHSU9TYzk0a1F1ZzFERlNXbWdiWWFMSHpqd3BBNUoxU1YzdG5TRTFsUDY4WC9xSGhtcnppYkpsMA"
-                    }
-                    className="w-[52vh] max-w-[29rem] min-w-[18rem] hidden"
-                    alt={"Side view"}
-                  />
+                  {!sideViewActive && (
+                    <img
+                      width="500px"
+                      height="500px"
+                      src={getUrlBasedOnSize(currentCase)}
+                      className="w-[52vh] max-w-[29rem] min-w-[18rem]"
+                      alt={"combined watch"}
+                    />
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -328,16 +440,25 @@ export default function Home() {
                   className="whitespace-nowrap pl-[calc(50vw-156px)] transition-all duration-500 ease-in-out"
                 >
                   {CASES.map((itemCase) => (
-                    <div key={itemCase.id} className="inline-block">
-                      <button
-                        onClick={() => slideCaseHandler(itemCase.id)}
-                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                      >
-                        <Image
-                          src={getUrlBasedOnSize(itemCase)}
-                          alt={itemCase.name}
-                        />
-                      </button>
+                    <div
+                      data-option
+                      key={itemCase.id}
+                      className="inline-block duration-800 transition-all"
+                    >
+                      {(!sideViewActive || currentCase.id !== itemCase.id) && (
+                        <button
+                          onClick={() => slideCaseHandler(itemCase.id)}
+                          className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
+                        >
+                          <Image
+                            src={getUrlBasedOnSize(itemCase)}
+                            alt={itemCase.name}
+                          />
+                        </button>
+                      )}
+                      {sideViewActive &&
+                        currentCase.id === itemCase.id &&
+                        sideViewImage(false)}
                     </div>
                   ))}
                 </div>
@@ -358,30 +479,24 @@ export default function Home() {
                     />
                   )}
                 </div>
-                <div className="absolute top-0 z-[-1] left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                  <img
-                    width="500px"
-                    height="500px"
-                    src={getUrlBasedOnSize(currentBand)}
-                    className="w-[52vh] max-w-[29rem] min-w-[18rem]"
-                    alt={"combined watch"}
-                  />
-                  <img
-                    width="500px"
-                    height="500px"
-                    src={
-                      "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MXLX3ref_FV99_VW_34FR+watch-case-46-aluminum-rosegold-nc-s10_VW_34FR+watch-face-46-aluminum-rosegold-s10_VW_34FR?wid=1000&hei=1000&fmt=p-jpg&qlt=95&.v=UzE4U0gvUkVPVWdqOTMwV2xIOHRaMG5TeWJ6QW43NUFnQ2V4cmRFc1VnWWYyNHkrWFJNZ1BodmdwcWlUcmtNMkhaMkVQZTdleWFvVytrdnNBQmJzc2RGNnlaeXQ4NGFKQTAzc0NGeHR2aWJiLzMwazFsQmpWNUowMkIwc3EzL0xpSkl2OTJEMEdGMUpkR2p1bmRlWnpuUWsvSndwZkZQSHB4L3lvZ1B2V3ZCbWtNN0I0OEtHSU9TYzk0a1F1ZzFERlNXbWdiWWFMSHpqd3BBNUoxU1YzdG5TRTFsUDY4WC9xSGhtcnppYkpsMA"
-                    }
-                    className="w-[52vh] max-w-[29rem] min-w-[18rem] hidden"
-                    alt={"Side view"}
-                  />
-                </div>
+                {!sideViewActive && (
+                  <div className="absolute top-0 z-[-1] left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
+                    <img
+                      width="500px"
+                      height="500px"
+                      src={getUrlBasedOnSize(currentBand)}
+                      className="w-[52vh] max-w-[29rem] min-w-[18rem]"
+                      alt="Current band"
+                    />
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
         )}
         {hasStarted && (
           <motion.div
+            className="absolute bottom-[40px] w-full"
             key="startedContent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -389,6 +504,14 @@ export default function Home() {
             transition={{ duration: 1, delay: 2.3 }}
           >
             <div className="mb-16 mt-8">
+              <div
+                className="text-[12px] text-[#06c] underline text-center mt-2 cursor-pointer"
+                onClick={() => {
+                  setSideViewActive(!sideViewActive);
+                }}
+              >
+                {sideViewActive ? "Front View" : "Side View"}
+              </div>
               <div className="text-[14px] text-[#6e6e73] text-center mt-2">
                 {selectedCollectionOption.name}
               </div>
