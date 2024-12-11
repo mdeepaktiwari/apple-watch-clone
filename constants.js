@@ -106,3 +106,24 @@ export const SIZE_COST = {
   [SIZE_42MM]: 0,
   [SIZE_46MM]: 50,
 };
+
+export const COLLECTION = {
+  0: {
+    collectionName: "Apple Watch Series 10",
+    bandList: BANDS,
+    caseList: CASES,
+  },
+  1: {
+    collectionName: "Apple Watch Hermès Series 10",
+    bandList: BANDS,
+    caseList: CASES,
+  },
+};
+
+export const DROPDOWN_OPTIONS = Object.keys(COLLECTION).map((key) => ({
+  id: key,
+  name: COLLECTION[key].collectionName,
+}));
+
+export const COMPANY_URL =
+  "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/apple-watch-design-studio-logo?wid=236&hei=52&fmt=jpeg&qlt=90&.v=1566849941844";

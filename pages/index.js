@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { NextButton, PreviousButton } from "@/components/Button";
 import { Band, Case, Size } from "@/components/Icon";
-import { BANDS, CASES } from "@/constants";
+import { BANDS, CASES, COLLECTION } from "@/constants";
 import { Image } from "@/components/Image";
-import { SIZE_42MM, SIZE_46MM, SIZE_MAPPING, SIZE_COST } from "@/constants";
+import {
+  SIZE_42MM,
+  SIZE_46MM,
+  SIZE_MAPPING,
+  SIZE_COST,
+  DROPDOWN_OPTIONS,
+} from "@/constants";
 import { NavBar } from "@/components/Navbar";
 import { Landing } from "@/components/Landing";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,12 +41,24 @@ export default function Home() {
   const [currentSelection, setCurrentSelection] = useState("start");
   const [currentSizeIndex, setCurrentSizeIndex] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
-  const [isTransitionActive, setIsTransitionActive] = useState(false);
+  const [selectedCollectionOption, setSelectedCollectionOption] = useState(
+    DROPDOWN_OPTIONS[0]
+  );
+  const [BANDS, setBANDS] = useState(
+    COLLECTION[selectedCollectionOption.id].bandList
+  );
+  const [CASES, setCASES] = useState(
+    COLLECTION[selectedCollectionOption.id].caseList
+  );
   useEffect(() => {
+    debugger;
+    setBANDS(COLLECTION[selectedCollectionOption.id].bandList);
+    setCASES(COLLECTION[selectedCollectionOption.id].caseList);
     slideBandHandler(3);
     slideCaseHandler(0);
     slideSizeHandler(SIZE_46MM);
-  }, []);
+    setCurrentSelection("start");
+  }, [selectedCollectionOption]);
 
   const slideBandHandler = (bandPosition) => {
     if (bandPosition < 0 || bandPosition >= BANDS.length) return;
@@ -73,7 +91,11 @@ export default function Home() {
   return (
     <AnimatePresence>
       <div>
-        <NavBar hasStarted={hasStarted} />
+        <NavBar
+          hasStarted={hasStarted}
+          selectedOption={selectedCollectionOption}
+          setSelectedOption={setSelectedCollectionOption}
+        />
         <Landing setHasStarted={setHasStarted} hasStarted={hasStarted} />
         <div>
           {currentSelection === "start" && (
@@ -368,7 +390,7 @@ export default function Home() {
           >
             <div className="mb-16 mt-8">
               <div className="text-[14px] text-[#6e6e73] text-center mt-2">
-                APPLE WATCH SERIES 10
+                {selectedCollectionOption.name}
               </div>
               <div className="text-[14px] font-semibold text-center mt-2">
                 {`${

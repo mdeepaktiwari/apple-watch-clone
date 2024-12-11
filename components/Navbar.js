@@ -1,24 +1,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Dropdown } from "./Icon";
-const DROPDOWN_OPTIONS = [
-  {
-    id: 0,
-    name: "Apple Watch Series 10",
-  },
-  {
-    id: 1,
-    name: "Apple Watch Hermès Series 10",
-  },
-];
+import { DROPDOWN_OPTIONS, COMPANY_URL } from "@/constants";
 
-const COMPANY_URL =
-  "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/apple-watch-design-studio-logo?wid=236&hei=52&fmt=jpeg&qlt=90&.v=1566849941844";
-
-export const NavBar = ({ hasStarted }) => {
+export const NavBar = ({ hasStarted, selectedOption, setSelectedOption }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(DROPDOWN_OPTIONS[0]);
-
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
   };
