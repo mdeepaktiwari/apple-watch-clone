@@ -3,7 +3,12 @@ import { useState } from "react";
 import { Dropdown } from "./Icon";
 import { DROPDOWN_OPTIONS, COMPANY_URL } from "@/constants";
 
-export const NavBar = ({ hasStarted, selectedOption, setSelectedOption }) => {
+export const NavBar = ({
+  hasStarted,
+  selectedOption,
+  setSelectedOption,
+  handleConfigSave,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
@@ -20,7 +25,6 @@ export const NavBar = ({ hasStarted, selectedOption, setSelectedOption }) => {
       </Link>
       {hasStarted && (
         <>
-          {" "}
           <div className="relative">
             <button
               onClick={toggleDropdown}
@@ -59,7 +63,10 @@ export const NavBar = ({ hasStarted, selectedOption, setSelectedOption }) => {
               </>
             )}
           </div>
-          <button className="bg-[#0071e3] text-white rounded-[30px] px-4 text-[14px] py-2">
+          <button
+            onClick={handleConfigSave}
+            className="bg-[#0071e3] text-white rounded-[30px] px-4 text-[14px] py-2"
+          >
             Save
           </button>
         </>

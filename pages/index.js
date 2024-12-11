@@ -3,6 +3,7 @@ import { NextButton, PreviousButton } from "@/components/Button";
 import { Band, Case, Size } from "@/components/Icon";
 import { BANDS, CASES, COLLECTION, SIDE_VIEW_MAPPING } from "@/constants";
 import { Image } from "@/components/Image";
+import { ConfigurationModal } from "@/components/ConfigurationModal";
 import {
   SIZE_42MM,
   SIZE_46MM,
@@ -13,6 +14,7 @@ import {
 import { NavBar } from "@/components/Navbar";
 import { Landing } from "@/components/Landing";
 import { motion, AnimatePresence } from "framer-motion";
+import { getShareableUrl, getConfiguration } from "@/utils";
 
 const getCollectionType = (collections) => {
   const set = new Set();
@@ -41,6 +43,7 @@ export default function Home() {
   const [currentSelection, setCurrentSelection] = useState("start");
   const [currentSizeIndex, setCurrentSizeIndex] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCollectionOption, setSelectedCollectionOption] = useState(
     DROPDOWN_OPTIONS[0]
   );
@@ -52,8 +55,8 @@ export default function Home() {
   const [CASES, setCASES] = useState(
     COLLECTION[selectedCollectionOption.id].caseList
   );
+  const [shareableURL, setShareableURL] = useState("");
   useEffect(() => {
-    debugger;
     setBANDS(COLLECTION[selectedCollectionOption.id].bandList);
     setCASES(COLLECTION[selectedCollectionOption.id].caseList);
     slideBandHandler(3);
@@ -66,22 +69,31 @@ export default function Home() {
     handleActiveViewStyle();
   }, [sideViewActive]);
 
-  const slideBandHandler = (bandPosition) => {
-    if (bandPosition < 0 || bandPosition >= BANDS.length) return;
-    let distance = -1 * bandPosition * 312;
+  useEffect(() => {
+    const data = getConfiguration();
+    if (!data) return;
+    setSelectedCollectionOption(DROPDOWN_OPTIONS[data.collection]);
+    setCurrentBand(() => BANDS[data.bandId]);
+    setCurrentCase(() => CASES[data.caseId]);
+    setCurrentSizeIndex(() => data.size);
+  }, []);
+
+  const slideHandler = (position, items, setCurrentItem, ref) => {
+    if (position < 0 || position >= items.length) return;
+    const ImageOptionSize = 312;
+    let distance = -1 * position * ImageOptionSize;
     setSideViewActive(false);
-    setCurrentBand(BANDS[bandPosition]);
-    if (!slideBand?.current) return;
-    slideBand.current.style.transform = `translateX(${distance}px)`;
+    setCurrentItem(items[position]);
+    if (!ref?.current) return;
+    ref.current.style.transform = `translateX(${distance}px)`;
+  };
+
+  const slideBandHandler = (bandPosition) => {
+    slideHandler(bandPosition, BANDS, setCurrentBand, slideBand);
   };
 
   const slideCaseHandler = (casePosition) => {
-    if (casePosition < 0 || casePosition >= CASES.length) return;
-    let distance = -1 * casePosition * 312;
-    setSideViewActive(false);
-    setCurrentCase(CASES[casePosition]);
-    if (!slideCase?.current) return;
-    slideCase.current.style.transform = `translateX(${distance}px)`;
+    slideHandler(casePosition, CASES, setCurrentCase, slideCase);
   };
 
   const slideSizeHandler = (size) => {
@@ -96,13 +108,12 @@ export default function Home() {
   const getUrlBasedOnSize = (item) => {
     return currentSizeIndex === SIZE_46MM ? item.url : item.url42;
   };
-
   const sideViewImage = (verticalSlidingRequired = true) => (
     <motion.div
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 2 }}
+      transition={{ duration: 0.8 }}
     >
       <div className="inline-block transition-all duration-[2s] ease-in-out">
         <Image
@@ -150,6 +161,28 @@ export default function Home() {
     });
   };
 
+  const configurationString = `${
+    currentSizeIndex === SIZE_46MM
+      ? SIZE_MAPPING[SIZE_46MM]
+      : SIZE_MAPPING[SIZE_42MM]
+  } ${currentCase.name} with ${currentBand.name}`;
+
+  const handleConfigSave = async () => {
+    try {
+      const shareableURL = getShareableUrl(
+        currentBand.id,
+        currentCase.id,
+        currentSizeIndex,
+        selectedCollectionOption.id
+      );
+      await navigator.clipboard.writeText(shareableURL);
+      setShareableURL(shareableURL);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error saving configuration", error);
+    }
+  };
+
   return (
     <AnimatePresence>
       <div>
@@ -157,6 +190,7 @@ export default function Home() {
           hasStarted={hasStarted}
           selectedOption={selectedCollectionOption}
           setSelectedOption={setSelectedCollectionOption}
+          handleConfigSave={handleConfigSave}
         />
         <Landing setHasStarted={setHasStarted} hasStarted={hasStarted} />
         <div>
@@ -368,7 +402,11 @@ export default function Home() {
                       className="inline-block transition-all duration-800"
                     >
                       {(!sideViewActive || currentBand.id !== band.id) && (
-                        <button
+                        <motion.button
+                          animate={{ opacity: 1 }}
+                          initial={{ opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.8 }}
                           onClick={() => slideBandHandler(band.id)}
                           className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
                         >
@@ -376,7 +414,7 @@ export default function Home() {
                             src={getUrlBasedOnSize(band)}
                             alt={band.name}
                           />
-                        </button>
+                        </motion.button>
                       )}
                       {sideViewActive &&
                         band.id === currentBand.id &&
@@ -401,17 +439,21 @@ export default function Home() {
                     />
                   )}
                 </div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                  {!sideViewActive && (
-                    <img
+                {!sideViewActive && (
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
+                    <motion.img
+                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0.5 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
                       width="500px"
                       height="500px"
                       src={getUrlBasedOnSize(currentCase)}
                       className="w-[52vh] max-w-[29rem] min-w-[18rem]"
-                      alt={"combined watch"}
+                      alt="Current case"
                     />
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -446,7 +488,11 @@ export default function Home() {
                       className="inline-block duration-800 transition-all"
                     >
                       {(!sideViewActive || currentCase.id !== itemCase.id) && (
-                        <button
+                        <motion.button
+                          animate={{ opacity: 1 }}
+                          initial={{ opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.8 }}
                           onClick={() => slideCaseHandler(itemCase.id)}
                           className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
                         >
@@ -454,7 +500,7 @@ export default function Home() {
                             src={getUrlBasedOnSize(itemCase)}
                             alt={itemCase.name}
                           />
-                        </button>
+                        </motion.button>
                       )}
                       {sideViewActive &&
                         currentCase.id === itemCase.id &&
@@ -481,7 +527,11 @@ export default function Home() {
                 </div>
                 {!sideViewActive && (
                   <div className="absolute top-0 z-[-1] left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                    <img
+                    <motion.img
+                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0.5 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
                       width="500px"
                       height="500px"
                       src={getUrlBasedOnSize(currentBand)}
@@ -516,11 +566,7 @@ export default function Home() {
                 {selectedCollectionOption.name}
               </div>
               <div className="text-[14px] font-semibold text-center mt-2">
-                {`${
-                  currentSizeIndex === SIZE_46MM
-                    ? SIZE_MAPPING[SIZE_46MM]
-                    : SIZE_MAPPING[SIZE_42MM]
-                } ${currentCase.name} with ${currentBand.name}`}
+                {`${configurationString}`}
               </div>
               <div className="text-[14px] text-[#6e6e73] text-center mt-2">
                 From $
@@ -657,6 +703,15 @@ export default function Home() {
           </motion.div>
         )}
       </div>
+      <ConfigurationModal
+        isOpen={isModalOpen}
+        caseImage={getUrlBasedOnSize(currentCase)}
+        bandImage={getUrlBasedOnSize(currentBand)}
+        shareableURL={shareableURL}
+        close={() => {
+          setIsModalOpen(false);
+        }}
+      />
     </AnimatePresence>
   );
 }
