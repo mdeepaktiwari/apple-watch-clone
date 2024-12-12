@@ -23,7 +23,7 @@ Follow these steps to set up the project locally:
 2. **Navigate to the project directory**
 
    ```
-   cd yourproject
+   cd apple-watch-clone
    ```
 
 3. **Install dependencies**
