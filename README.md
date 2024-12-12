@@ -6,7 +6,6 @@ Clone of the Apple Watch Studio experience, focusing on the seamless customizati
 
 ## Features
 
-- **Apple Watch Studio Landing Page**: Replicate the landing page with all visual details.
 - **Apple Watch Customization Workflow**:
 
   - **Case Selection**:
