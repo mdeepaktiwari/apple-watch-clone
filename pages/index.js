@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NextButton, PreviousButton } from "@/components/Button";
 import { Band, Case, Size } from "@/components/Icon";
-import { BANDS, CASES, COLLECTION, SIDE_VIEW_MAPPING } from "@/constants";
+import { COLLECTION, SIDE_VIEW_MAPPING } from "@/constants";
 import { Image } from "@/components/Image";
 import { ConfigurationModal } from "@/components/ConfigurationModal";
 import {
@@ -14,25 +14,13 @@ import {
 import { NavBar } from "@/components/Navbar";
 import { Landing } from "@/components/Landing";
 import { motion, AnimatePresence } from "framer-motion";
-import { getShareableUrl, getConfiguration } from "@/utils";
-
-const getCollectionType = (collections) => {
-  const set = new Set();
-  const collectionList = [];
-  collections.forEach((item) => {
-    if (!set.has(item.type)) {
-      set.add(item.type);
-      collectionList.push({
-        name: item.type,
-        pos: item.id,
-      });
-    }
-  });
-  return collectionList;
-};
-
-const bandList = getCollectionType(BANDS);
-const caseList = getCollectionType(CASES);
+import { getShareableUrl, getConfiguration, getCollectionType } from "@/utils";
+import {
+  MotionButton,
+  ResponsiveMotionConfigButton,
+  CurrentSelectionMotionDiv,
+  MotionImage,
+} from "@/components/Interactive";
 
 export default function Home() {
   const slideCase = useRef(null);
@@ -48,7 +36,6 @@ export default function Home() {
     DROPDOWN_OPTIONS[0]
   );
   const [sideViewActive, setSideViewActive] = useState(false);
-
   const [BANDS, setBANDS] = useState(
     COLLECTION[selectedCollectionOption.id].bandList
   );
@@ -129,6 +116,9 @@ export default function Home() {
       </div>
     </motion.div>
   );
+
+  const bandList = getCollectionType(BANDS);
+  const caseList = getCollectionType(CASES);
 
   const handleActiveViewStyle = () => {
     const option = currentSelection;
@@ -269,21 +259,10 @@ export default function Home() {
         </div>
         {currentSelection === "size" && (
           <div>
-            <motion.div
-              id="size-container"
-              initial={{
-                opacity: 0,
-                display: "none",
-              }}
-              animate={{
-                opacity: 1,
-                display: "block",
-              }}
+            <CurrentSelectionMotionDiv
               onAnimationStart={() => {
                 slideSizeHandler(currentSizeIndex);
               }}
-              exit={{ opacity: 0, display: "none" }}
-              transition={{ duration: 2 }}
               aria-hidden={currentSelection !== "size"}
             >
               <div className="relative overflow-hidden">
@@ -296,14 +275,7 @@ export default function Home() {
                     className="inline-block transition-all duration-800"
                   >
                     {(!sideViewActive || currentSizeIndex === SIZE_46MM) && (
-                      <motion.button
-                        animate={{ opacity: 1 }}
-                        initial={{ opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8 }}
-                        onClick={() => slideSizeHandler(0)}
-                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                      >
+                      <MotionButton handler={() => slideSizeHandler(0)}>
                         <Image
                           src={currentBand.url42}
                           alt="Watch band image size 42"
@@ -313,7 +285,7 @@ export default function Home() {
                           additionalClass="relative top-[-444px]"
                           alt="Watch case image size 42"
                         />
-                      </motion.button>
+                      </MotionButton>
                     )}
                     {sideViewActive && currentSizeIndex === SIZE_42MM && (
                       <div className="inline-block">{sideViewImage()}</div>
@@ -325,14 +297,7 @@ export default function Home() {
                     className="inline-block transition-all duration-800"
                   >
                     {(!sideViewActive || currentSizeIndex === SIZE_42MM) && (
-                      <motion.button
-                        animate={{ opacity: 1 }}
-                        initial={{ opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8 }}
-                        onClick={() => slideSizeHandler(1)}
-                        className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
-                      >
+                      <MotionButton handler={() => slideSizeHandler(1)}>
                         <Image
                           src={currentBand.url}
                           alt="Watch band image size 46"
@@ -342,7 +307,7 @@ export default function Home() {
                           additionalClass="relative top-[-444px]"
                           alt="Watch case image size 46"
                         />
-                      </motion.button>
+                      </MotionButton>
                     )}
                     {sideViewActive &&
                       currentSizeIndex === SIZE_46MM &&
@@ -370,23 +335,12 @@ export default function Home() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </CurrentSelectionMotionDiv>
           </div>
         )}
         {currentSelection === "band" && (
           <div>
-            <motion.div
-              id="band-container"
-              initial={{
-                opacity: 0,
-                display: "none",
-              }}
-              animate={{
-                opacity: 1,
-                display: "block",
-              }}
-              exit={{ opacity: 0, display: "none" }}
-              transition={{ duration: 2 }}
+            <CurrentSelectionMotionDiv
               onAnimationStart={() => {
                 slideBandHandler(currentBand.id);
               }}
@@ -445,37 +399,19 @@ export default function Home() {
                 </div>
                 {!sideViewActive && (
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                    <motion.img
-                      animate={{ opacity: 1 }}
-                      initial={{ opacity: 0.3 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      width="500px"
-                      height="500px"
+                    <MotionImage
                       src={getUrlBasedOnSize(currentCase)}
-                      className="w-[52vh] max-w-[29rem] min-w-[18rem]"
                       alt="Current case"
                     />
                   </div>
                 )}
               </div>
-            </motion.div>
+            </CurrentSelectionMotionDiv>
           </div>
         )}
         {currentSelection === "case" && (
           <div>
-            <motion.div
-              id="case-container"
-              initial={{
-                opacity: 0,
-                display: "none",
-              }}
-              animate={{
-                opacity: 1,
-                display: "block",
-              }}
-              exit={{ opacity: 0, display: "none" }}
-              transition={{ duration: 2 }}
+            <CurrentSelectionMotionDiv
               onAnimationStart={() => {
                 slideCaseHandler(currentCase.id);
               }}
@@ -534,21 +470,14 @@ export default function Home() {
                 </div>
                 {!sideViewActive && (
                   <div className="absolute top-0 z-[-1] left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                    <motion.img
-                      animate={{ opacity: 1 }}
-                      initial={{ opacity: 0.3 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      width="500px"
-                      height="500px"
+                    <MotionImage
                       src={getUrlBasedOnSize(currentBand)}
-                      className="w-[52vh] max-w-[29rem] min-w-[18rem]"
                       alt="Current band"
                     />
                   </div>
                 )}
               </div>
-            </motion.div>
+            </CurrentSelectionMotionDiv>
           </div>
         )}
         {hasStarted && (
@@ -609,16 +538,7 @@ export default function Home() {
                   <Size /> {currentSelection === "size" ? "" : "Size"}{" "}
                 </div>
                 {currentSelection === "size" && (
-                  <motion.div
-                    className="flex"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: "auto", opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{
-                      width: { duration: 0.5, ease: "easeInOut" },
-                      opacity: { duration: 0.3, ease: "easeInOut" },
-                    }}
-                  >
+                  <ResponsiveMotionConfigButton>
                     <div
                       role="button"
                       tabIndex="0"
@@ -657,7 +577,7 @@ export default function Home() {
                     >
                       {SIZE_MAPPING[SIZE_46MM]}
                     </div>
-                  </motion.div>
+                  </ResponsiveMotionConfigButton>
                 )}
               </div>
               <div
@@ -676,16 +596,7 @@ export default function Home() {
                   <Case /> {currentSelection === "case" ? "" : "Case"}{" "}
                 </div>
                 {currentSelection === "case" ? (
-                  <motion.div
-                    className="flex"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: "auto", opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{
-                      width: { duration: 0.5, ease: "easeInOut" },
-                      opacity: { duration: 0.3, ease: "easeInOut" },
-                    }}
-                  >
+                  <ResponsiveMotionConfigButton>
                     {caseList?.map((itemCase, index) => (
                       <div
                         role="button"
@@ -707,7 +618,7 @@ export default function Home() {
                         {itemCase.name}
                       </div>
                     ))}
-                  </motion.div>
+                  </ResponsiveMotionConfigButton>
                 ) : null}
               </div>
               <div
@@ -728,16 +639,7 @@ export default function Home() {
                   </div>
                 </div>
                 {currentSelection === "band" ? (
-                  <motion.div
-                    className="flex"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: "auto", opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{
-                      width: { duration: 0.5, ease: "easeInOut" },
-                      opacity: { duration: 0.3, ease: "easeInOut" },
-                    }}
-                  >
+                  <ResponsiveMotionConfigButton>
                     {bandList?.map((band, index) => (
                       <div
                         role="button"
@@ -759,7 +661,7 @@ export default function Home() {
                         {band.name}
                       </div>
                     ))}
-                  </motion.div>
+                  </ResponsiveMotionConfigButton>
                 ) : null}
               </div>
             </div>
