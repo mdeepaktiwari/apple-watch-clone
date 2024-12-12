@@ -106,7 +106,7 @@ export default function Home() {
       <div className="inline-block transition-all duration-[2s] ease-in-out">
         <Image
           additionalClass={
-            verticalSlidingRequired ? "relative top-[-444px]" : ""
+            verticalSlidingRequired ? "relative top-[-52vh]" : ""
           }
           src={getUrlBasedOnSize(
             SIDE_VIEW_MAPPING[`${currentCase.id}${currentBand.id}`]
@@ -229,7 +229,7 @@ export default function Home() {
                       />
                       <Image
                         src={getUrlBasedOnSize(currentCase)}
-                        additionalClass="relative top-[-444px]"
+                        additionalClass="relative top-[-52vh]"
                         alt="Initial watch case image"
                       />
                     </button>
@@ -282,7 +282,7 @@ export default function Home() {
                         />
                         <Image
                           src={currentCase.url42}
-                          additionalClass="relative top-[-444px]"
+                          additionalClass="relative top-[-52vh]"
                           alt="Watch case image size 42"
                         />
                       </MotionButton>
@@ -304,7 +304,7 @@ export default function Home() {
                         />
                         <Image
                           src={currentCase.url}
-                          additionalClass="relative top-[-444px]"
+                          additionalClass="relative top-[-52vh]"
                           alt="Watch case image size 46"
                         />
                       </MotionButton>
