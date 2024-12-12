@@ -1,4 +1,5 @@
 export const Image = ({ src, alt, additionalClass = "" }) => {
+  if (!src) return null;
   return (
     <img
       width="500px"
