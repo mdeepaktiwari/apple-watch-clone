@@ -11,21 +11,26 @@ export const Landing = ({ setHasStarted, hasStarted }) => {
         display: hasStarted ? "none" : "block",
         marginTop: hasStarted ? "0" : "56px",
       }}
-      initial={{ height: "auto", display: "block", marginTop: "56px" }}
+      initial={{
+        height: "auto",
+        display: "block",
+        marginTop: "56px",
+      }}
       transition={{ duration: 2 }}
+      role="main"
     >
-      <h1 className="pb-2">
-        <div className="pb-4 text-[20px] text-[#1d1d1f]">
+      <h1 className="pb-1">
+        <div className="pb-2 text-[20px] text-[#1d1d1f]">
           Apple Watch Studio
         </div>
         <div>
-          <span className="block text-[64px] font-semibold leading-[4.5rem]">
+          <span className="block text-[62px] font-medium leading-[4.5rem]">
             Choose a case.
           </span>
-          <span className="block text-[64px] font-semibold leading-[4.5rem]">
+          <span className="block text-[62px] font-medium leading-[4.5rem]">
             Pick a band.
           </span>
-          <span className="block text-[64px] font-semibold leading-[4.5rem]">
+          <span className="block text-[62px] font-medium leading-[4.5rem]">
             Create your own style.
           </span>
         </div>
@@ -35,7 +40,8 @@ export const Landing = ({ setHasStarted, hasStarted }) => {
           onClick={() => {
             setHasStarted(true);
           }}
-          className="bg-[#0071e3] text-white rounded-[35px] px-[20px] text-[18px] py-[10px]"
+          aria-label="Start customization"
+          className="bg-[#0071e3] font-light text-white rounded-[35px] px-[20px] text-[18px] py-[8px]"
         >
           Get started
         </button>

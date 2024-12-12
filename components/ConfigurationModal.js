@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Close, Plus } from "./Icon";
 
 export const ConfigurationModal = ({
   isOpen,
@@ -10,7 +11,8 @@ export const ConfigurationModal = ({
   const [isCopied, setIsCopied] = useState(false);
   return (
     <div
-      className={`fixed inset-0 bg-black bg-opacity-50 h-full px-2 z-[2] transition-opacity duration-300 ${
+      aria-modal="true"
+      className={`fixed inset-0 bg-[#32323270] bg-opacity-50 h-full px-2 z-[2] transition-opacity duration-300 ${
         isOpen
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
@@ -24,13 +26,13 @@ export const ConfigurationModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-4 text-[20px] right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 text-[18px] right-4 text-gray-400 hover:text-gray-600"
           onClick={close}
         >
-          ✖
+          <Close />
         </button>
 
-        <h2 className="text-[#1d1d1f] text-[24px] font-bold pb-4 text-center">
+        <h2 className="text-[#1d1d1f] text-[28px] font-medium pb-4 text-center">
           Configuration Saved
         </h2>
 
@@ -42,7 +44,9 @@ export const ConfigurationModal = ({
             height={250}
             width={250}
           />
-          <span className="text-[28px] font-bold text-gray-600">+</span>
+          <span className="text-[28px] font-bold text-gray-600">
+            <Plus />
+          </span>
           <img
             src={bandImage}
             alt="Band"
@@ -52,27 +56,16 @@ export const ConfigurationModal = ({
           />
         </div>
 
-        <p className="text-[#1d1d1f] text-[16px] leading-6 text-center mb-6 font-medium">
+        <p className="text-[#1d1d1f] text-[16px] leading-6 text-center mb-6 font-light">
           Your configuration has been saved to the clipboard. Share it with your
           friends and family.
         </p>
-
-        <div className="border rounded-lg p-4 my-4 text-[#6e6e73] text-[14px]">
-          If the configuration was not successfully copied to the clipboard, you
-          can access it using the link provided below:
-          <a
-            href={shareableURL}
-            className="mt-1 text-blue-600 text-[14px] underline break-all block"
-            target="_blank"
-          >
-            {shareableURL}
-          </a>
-        </div>
-
-        <div className="flex items-center justify-center mt-4">
+        <div className="flex items-center justify-center my-4">
           <button
             disabled={isCopied}
-            className="px-4 py-2 bg-blue-600 text-white rounded-[30px] shadow hover:bg-blue-500 transition duration-200"
+            className={`px-4 py-2 bg-blue-600 text-white rounded-[30px] font-light shadowtransition duration-200 ${
+              isCopied ? "bg-gray-400 cursor-not-allowed" : "hover:bg-blue-500"
+            }`}
             onClick={() =>
               navigator.clipboard.writeText(shareableURL).then(() => {
                 setIsCopied(true);
@@ -84,6 +77,18 @@ export const ConfigurationModal = ({
           >
             {isCopied ? "Copied!" : "Copy to Clipboard"}
           </button>
+        </div>
+        <div className="border-t p-4 my-4 mt-8 text-[#6e6e73] text-[14px]">
+          If the configuration was not successfully copied to the clipboard, you
+          can access it using the link provided below:
+          <a
+            href={shareableURL}
+            className="mt-1 text-blue-600 text-[14px] underline break-all block"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {shareableURL}
+          </a>
         </div>
       </div>
     </div>

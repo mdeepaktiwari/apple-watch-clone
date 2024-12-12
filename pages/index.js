@@ -114,6 +114,7 @@ export default function Home() {
       initial={{ opacity: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
+      key="app-side-view"
     >
       <div className="inline-block transition-all duration-[2s] ease-in-out">
         <Image
@@ -207,7 +208,8 @@ export default function Home() {
                 display: "block",
               }}
               exit={{ opacity: 0, display: "none" }}
-              transition={{ duration: 2 }}
+              transition={{ duration: 1.5 }}
+              aria-hidden={!hasStarted}
             >
               {!sideViewActive && (
                 <motion.div
@@ -250,7 +252,7 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   initial={{ opacity: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 2 }}
+                  transition={{ duration: 1.5 }}
                 >
                   <div className="inline-block transition-all duration-[2s] ease-in-out">
                     <Image
@@ -282,6 +284,7 @@ export default function Home() {
               }}
               exit={{ opacity: 0, display: "none" }}
               transition={{ duration: 2 }}
+              aria-hidden={currentSelection !== "size"}
             >
               <div className="relative overflow-hidden">
                 <div
@@ -293,7 +296,11 @@ export default function Home() {
                     className="inline-block transition-all duration-800"
                   >
                     {(!sideViewActive || currentSizeIndex === SIZE_46MM) && (
-                      <button
+                      <motion.button
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8 }}
                         onClick={() => slideSizeHandler(0)}
                         className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
                       >
@@ -306,7 +313,7 @@ export default function Home() {
                           additionalClass="relative top-[-444px]"
                           alt="Watch case image size 42"
                         />
-                      </button>
+                      </motion.button>
                     )}
                     {sideViewActive && currentSizeIndex === SIZE_42MM && (
                       <div className="inline-block">{sideViewImage()}</div>
@@ -318,7 +325,11 @@ export default function Home() {
                     className="inline-block transition-all duration-800"
                   >
                     {(!sideViewActive || currentSizeIndex === SIZE_42MM) && (
-                      <button
+                      <motion.button
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8 }}
                         onClick={() => slideSizeHandler(1)}
                         className="bg-none border-0 block m-0 overflow-hidden p-0 relative text-center whitespace-normal w-[312px]"
                       >
@@ -331,7 +342,7 @@ export default function Home() {
                           additionalClass="relative top-[-444px]"
                           alt="Watch case image size 46"
                         />
-                      </button>
+                      </motion.button>
                     )}
                     {sideViewActive &&
                       currentSizeIndex === SIZE_46MM &&
@@ -342,6 +353,7 @@ export default function Home() {
                 <div>
                   {currentSizeIndex > 0 && (
                     <PreviousButton
+                      aria-label="Previous size"
                       handler={() => {
                         slideSizeHandler(currentSizeIndex - 1);
                       }}
@@ -350,23 +362,12 @@ export default function Home() {
 
                   {currentSizeIndex < 1 && (
                     <NextButton
+                      aria-label="Next size"
                       handler={() => {
                         slideSizeHandler(currentSizeIndex + 1);
                       }}
                     />
                   )}
-                </div>
-
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
-                  <img
-                    width="500px"
-                    height="500px"
-                    src={
-                      "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MXLX3ref_FV99_VW_34FR+watch-case-46-aluminum-rosegold-nc-s10_VW_34FR+watch-face-46-aluminum-rosegold-s10_VW_34FR?wid=1000&hei=1000&fmt=p-jpg&qlt=95&.v=UzE4U0gvUkVPVWdqOTMwV2xIOHRaMG5TeWJ6QW43NUFnQ2V4cmRFc1VnWWYyNHkrWFJNZ1BodmdwcWlUcmtNMkhaMkVQZTdleWFvVytrdnNBQmJzc2RGNnlaeXQ4NGFKQTAzc0NGeHR2aWJiLzMwazFsQmpWNUowMkIwc3EzL0xpSkl2OTJEMEdGMUpkR2p1bmRlWnpuUWsvSndwZkZQSHB4L3lvZ1B2V3ZCbWtNN0I0OEtHSU9TYzk0a1F1ZzFERlNXbWdiWWFMSHpqd3BBNUoxU1YzdG5TRTFsUDY4WC9xSGhtcnppYkpsMA"
-                    }
-                    className="w-[52vh] max-w-[29rem] min-w-[18rem] hidden"
-                    alt={"Side view"}
-                  />
                 </div>
               </div>
             </motion.div>
@@ -389,6 +390,7 @@ export default function Home() {
               onAnimationStart={() => {
                 slideBandHandler(currentBand.id);
               }}
+              aria-hidden={currentSelection === "band"}
             >
               <div className="relative overflow-hidden">
                 <div
@@ -425,6 +427,7 @@ export default function Home() {
                 <div>
                   {currentBand.id > 0 && (
                     <PreviousButton
+                      aria-label="Previous size"
                       handler={() => {
                         slideBandHandler(currentBand.id - 1);
                       }}
@@ -433,6 +436,7 @@ export default function Home() {
 
                   {currentBand.id < BANDS.length - 1 && (
                     <NextButton
+                      aria-label="Next size"
                       handler={() => {
                         slideBandHandler(currentBand.id + 1);
                       }}
@@ -443,7 +447,7 @@ export default function Home() {
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
                     <motion.img
                       animate={{ opacity: 1 }}
-                      initial={{ opacity: 0.5 }}
+                      initial={{ opacity: 0.3 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.5 }}
                       width="500px"
@@ -475,6 +479,7 @@ export default function Home() {
               onAnimationStart={() => {
                 slideCaseHandler(currentCase.id);
               }}
+              aria-hidden={currentSelection !== "case"}
             >
               <div className="relative overflow-hidden">
                 <div
@@ -511,6 +516,7 @@ export default function Home() {
                 <div>
                   {currentCase.id > 0 && (
                     <PreviousButton
+                      aria-label="Previous size"
                       handler={() => {
                         slideCaseHandler(currentCase.id - 1);
                       }}
@@ -519,6 +525,7 @@ export default function Home() {
 
                   {currentCase.id < CASES.length - 1 && (
                     <NextButton
+                      aria-label="Next size"
                       handler={() => {
                         slideCaseHandler(currentCase.id + 1);
                       }}
@@ -529,7 +536,7 @@ export default function Home() {
                   <div className="absolute top-0 z-[-1] left-1/2 transform -translate-x-1/2 transition-opacity duration-400 ease-out">
                     <motion.img
                       animate={{ opacity: 1 }}
-                      initial={{ opacity: 0.5 }}
+                      initial={{ opacity: 0.3 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.5 }}
                       width="500px"
@@ -546,7 +553,7 @@ export default function Home() {
         )}
         {hasStarted && (
           <motion.div
-            className="absolute bottom-[40px] w-full"
+            className="absolute bottom-[60px] w-full"
             key="startedContent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -554,35 +561,51 @@ export default function Home() {
             transition={{ duration: 1, delay: 2.3 }}
           >
             <div className="mb-16 mt-8">
-              <div
-                className="text-[12px] text-[#06c] underline text-center mt-2 cursor-pointer"
-                onClick={() => {
-                  setSideViewActive(!sideViewActive);
-                }}
-              >
-                {sideViewActive ? "Front View" : "Side View"}
+              <div className="flex justify-center">
+                <div
+                  role="button"
+                  tabIndex="0"
+                  className="text-[12px] text-[#06c] underline text-center mt-2 cursor-pointer"
+                  onClick={() => {
+                    setSideViewActive(!sideViewActive);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setSideViewActive(!sideViewActive);
+                    }
+                  }}
+                >
+                  {sideViewActive ? "Front View" : "Side View"}
+                </div>
               </div>
               <div className="text-[14px] text-[#6e6e73] text-center mt-2">
                 {selectedCollectionOption.name}
               </div>
-              <div className="text-[14px] font-semibold text-center mt-2">
+              <div className="text-[14px] text-center mt-1">
                 {`${configurationString}`}
               </div>
-              <div className="text-[14px] text-[#6e6e73] text-center mt-2">
+              <div className="text-[14px] text-[#6e6e73] text-center mt-1">
                 From $
                 {currentSizeIndex === SIZE_46MM
                   ? currentBand.cost + currentCase.cost + SIZE_COST[SIZE_46MM]
                   : currentBand.cost + currentCase.cost + SIZE_COST[SIZE_42MM]}
               </div>
             </div>
-            <div className="flex justify-center gap-4 items-center">
+            <div className="flex justify-center gap-4 flex-wrap items-center">
               <div
+                role="button"
+                tabIndex="0"
                 className="bg-[#e8e8ed] cursor-pointer flex px-[16px] rounded-[20px] text-[18px] h-[41px] items-center overflow-hidden"
                 onClick={() => {
                   setCurrentSelection("size");
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setCurrentSelection("size");
+                  }
+                }}
               >
-                <div className="flex items-center gap-2 pr-1">
+                <div className="flex font-light items-center gap-2 pr-1">
                   <Size /> {currentSelection === "size" ? "" : "Size"}{" "}
                 </div>
                 {currentSelection === "size" && (
@@ -597,25 +620,39 @@ export default function Home() {
                     }}
                   >
                     <div
+                      role="button"
+                      tabIndex="0"
                       className={`px-2 py-[5px] transition-all duration-800 ease-in-out ${
                         currentSizeIndex === SIZE_42MM
-                          ? `font-semibold outline outline-2 outline-[#0077ed]`
+                          ? `font-medium outline outline-2 outline-[#0077ed]`
                           : ""
                       }`}
                       onClick={() => {
                         slideSizeHandler(SIZE_42MM);
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          slideSizeHandler(SIZE_42MM);
+                        }
+                      }}
                     >
                       {SIZE_MAPPING[SIZE_42MM]}
                     </div>
                     <div
+                      role="button"
+                      tabIndex="0"
                       className={`px-2 py-[5px] cursor-pointer transition-all duration-800 ease-in-out ${
                         currentSizeIndex === 1
-                          ? `font-semibold outline outline-2 outline-[#0077ed]`
+                          ? `font-medium outline outline-2 outline-[#0077ed]`
                           : ""
                       }`}
                       onClick={() => {
                         slideSizeHandler(SIZE_46MM);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          slideSizeHandler(SIZE_46MM);
+                        }
                       }}
                     >
                       {SIZE_MAPPING[SIZE_46MM]}
@@ -624,12 +661,18 @@ export default function Home() {
                 )}
               </div>
               <div
+                role="button"
+                tabIndex="0"
                 className="bg-[#e8e8ed] cursor-pointer flex px-[16px] py-[2px] rounded-[20px] text-[18px] h-[41px] items-center overflow-hidden"
                 onClick={() => {
                   setCurrentSelection("case");
                 }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  setCurrentSelection("case");
+                }}
               >
-                <div className="flex items-center gap-2 pr-1">
+                <div className="flex font-light items-center gap-2 pr-1">
                   <Case /> {currentSelection === "case" ? "" : "Case"}{" "}
                 </div>
                 {currentSelection === "case" ? (
@@ -643,14 +686,21 @@ export default function Home() {
                       opacity: { duration: 0.3, ease: "easeInOut" },
                     }}
                   >
-                    {caseList?.map((itemCase) => (
+                    {caseList?.map((itemCase, index) => (
                       <div
+                        role="button"
+                        tabIndex="0"
+                        key={`case-${index}`}
                         className={`px-2 py-[5px] transition-all duration-800 ease-in-out ${
                           currentCase.type === itemCase.name
-                            ? `font-semibold outline outline-2 outline-[#0077ed]`
+                            ? `font-medium outline outline-2 outline-[#0077ed]`
                             : ""
                         }`}
                         onClick={() => {
+                          slideCaseHandler(itemCase.pos);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter") return;
                           slideCaseHandler(itemCase.pos);
                         }}
                       >
@@ -661,13 +711,19 @@ export default function Home() {
                 ) : null}
               </div>
               <div
+                role="button"
+                tabIndex="0"
                 className="bg-[#e8e8ed] flex px-[16px] cursor-pointer py-[2px] rounded-[20px] text-[18px] h-[41px] items-center overflow-hidden"
                 onClick={() => {
                   setCurrentSelection("band");
                 }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  setCurrentSelection("band");
+                }}
               >
                 <div className="px-2 cursor-pointer">
-                  <div className="flex items-center gap-2 pr-1">
+                  <div className="flex font-light items-center gap-2 pr-1">
                     <Band /> {currentSelection === "band" ? "" : "Band"}{" "}
                   </div>
                 </div>
@@ -682,14 +738,21 @@ export default function Home() {
                       opacity: { duration: 0.3, ease: "easeInOut" },
                     }}
                   >
-                    {bandList?.map((band) => (
+                    {bandList?.map((band, index) => (
                       <div
+                        role="button"
+                        tabIndex="0"
+                        key={`band-${index}`}
                         className={`px-2 py-[5px] transition-all duration-800 ease-in-out text-nowrap overflow-hidden ${
                           currentBand.type === band.name
-                            ? `font-semibold outline outline-2 outline-[#0077ed]`
+                            ? `font-medium outline outline-2 outline-[#0077ed]`
                             : ""
                         }`}
                         onClick={() => {
+                          slideBandHandler(band.pos);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter") return;
                           slideBandHandler(band.pos);
                         }}
                       >
